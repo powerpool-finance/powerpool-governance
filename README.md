@@ -4,7 +4,7 @@
 
 This repository contains the set of smart contracts, used for decision-making by PowerPool community regarding the protocol development, protocol parameters, and smart contracts upgrades. It provides an opportunity to vote by CVP token holders (including CVP, locked especially for votings), the participants of Beta and Gamma rounds (using vested CVP tokens), and liquidity providers (using BPT/UNI LP tokens). Participance in governance for mentioned groups of users is available on Ethereum mainnet and sidechains, such as xDAI and Matic.
 
-More details in 👉 [Specification]().
+More details in 👉 [Specification](https://github.com/powerpool-finance/powerpool-docs/blob/master/specifications/PowerPool-governance.md).
 
 🚨 **Security review status: an audit is in progress**
 
