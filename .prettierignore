@@ -1,0 +1,17 @@
+# folders
+artifacts/
+build/
+cache/
+coverage/
+dist/
+lib/
+node_modules/
+typechain/
+contracts/interfaces/CvpInterface.sol
+contracts/interfaces/GovernorAlphaInterface.sol
+contracts/mocks/MockCVP.sol
+contracts/PPGovernorL1.sol
+contracts/Timelock.sol
+
+# files
+coverage.json
