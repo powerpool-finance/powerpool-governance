@@ -127,12 +127,6 @@ contract PPGovernorL1 is GovernorAlphaInterface {
     guardian = guardian_;
   }
 
-  function setVoteSources(address[] calldata voteSources_) external {
-    require(msg.sender == address(timelock), "GovernorAlpha::setVoteSources: only timelock allowed");
-    voteSources = voteSources_;
-    emit SetVoteSources(voteSources_);
-  }
-
   function propose(address[] memory targets, uint[] memory values, string[] memory signatures, bytes[] memory calldatas, string memory description) public returns (uint) {
     require(getPriorVotes(msg.sender, sub256(block.number, 1)) > proposalThreshold(), "GovernorAlpha::propose: proposer votes below proposal threshold");
     require(targets.length == values.length && targets.length == signatures.length && targets.length == calldatas.length, "GovernorAlpha::propose: proposal function information arity mismatch");
@@ -254,6 +248,10 @@ contract PPGovernorL1 is GovernorAlphaInterface {
     }
 
     return total;
+  }
+
+  function getVoteSources() external view returns (address[] memory) {
+    return voteSources;
   }
 
   function castVote(uint proposalId, bool support) public {
