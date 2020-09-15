@@ -9,9 +9,9 @@ More details in 👉 [Specification](https://github.com/powerpool-finance/powerp
 🚨 **Security review status: an audit is in progress**
 
 ## Contracts on Ethereum Main Network
-PPGovernorL1 - [0xefe147ffc12b847c0f2b6f19c11fa8266a8e3ddf](https://etherscan.io/address/0xefe147ffc12b847c0f2b6f19c11fa8266a8e3ddf)
-Timelock - [0xb712ab1263fd2d992e39df1cf3f81ea9bb83e548](https://etherscan.io/address/0xb712ab1263fd2d992e39df1cf3f81ea9bb83e548)
-CVP - [0x38e4adb44ef08f22f5b5b76a8f0c2d0dcbe7dca1](https://etherscan.io/address/0x38e4adb44ef08f22f5b5b76a8f0c2d0dcbe7dca1)
+- PPGovernorL1 - [0xefe147ffc12b847c0f2b6f19c11fa8266a8e3ddf](https://etherscan.io/address/0xefe147ffc12b847c0f2b6f19c11fa8266a8e3ddf)
+- Timelock - [0xb712ab1263fd2d992e39df1cf3f81ea9bb83e548](https://etherscan.io/address/0xb712ab1263fd2d992e39df1cf3f81ea9bb83e548)
+- CVP Token - [0x38e4adb44ef08f22f5b5b76a8f0c2d0dcbe7dca1](https://etherscan.io/address/0x38e4adb44ef08f22f5b5b76a8f0c2d0dcbe7dca1)
 
 ## Testing and Development
 
