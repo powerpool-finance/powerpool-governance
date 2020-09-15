@@ -40,7 +40,10 @@ contract PPGovernorL1 is GovernorAlphaInterface {
   TimelockInterface public timelock;
 
   /// @notice The addresses of the PowerPool-compatible vote sources
-  address[] public voteSources;
+  address[] public voteSourceList;
+
+  /// @notice The mapping of the active PowerPool-compatible vote sources
+  mapping(address => bool) public voteSources;
 
   /// @notice The address of the Governor Guardian
   address public guardian;
@@ -123,14 +126,42 @@ contract PPGovernorL1 is GovernorAlphaInterface {
     require(voteSources_.length > 0, "GovernorAlpha::constructor: voteSources can't be empty");
 
     timelock = TimelockInterface(timelock_);
-    voteSources = voteSources_;
+    _setVoteSources(voteSources_);
     guardian = guardian_;
   }
 
-  function setVoteSources(address[] calldata voteSources_) external {
+  function setVoteSources(address[] calldata newVoteSources_) external {
     require(msg.sender == address(timelock), "GovernorAlpha::setVoteSources: only timelock allowed");
-    voteSources = voteSources_;
-    emit SetVoteSources(voteSources_);
+
+    _clearVoteSources();
+    _setVoteSources(newVoteSources_);
+  }
+
+  function _clearVoteSources() internal {
+    uint256 len = voteSourceList.length;
+    for (uint256 i = 0; i < len; i++) {
+      voteSources[voteSourceList[i]] = false;
+    }
+    delete voteSourceList;
+  }
+
+  function _setVoteSources(address[] memory newVoteSources_) internal {
+    uint256 len = newVoteSources_.length;
+    require(len > 0, "GovernorAlpha::_setVoteSources: vote source list is empty");
+
+    for (uint256 i = 0; i < len; i++) {
+      address source = newVoteSources_[i];
+      require(source != address(0), "GovernorAlpha::_setVoteSources: vote source address is 0");
+      require(voteSources[source] == false, "GovernorAlpha::_setVoteSources: vote source duplication");
+      voteSources[source] = true;
+    }
+    voteSourceList = newVoteSources_;
+
+    emit SetVoteSources(newVoteSources_);
+  }
+
+  function getVoteSources() external view returns (address[] memory) {
+    return voteSourceList;
   }
 
   function propose(address[] memory targets, uint[] memory values, string[] memory signatures, bytes[] memory calldatas, string memory description) public returns (uint) {
@@ -247,10 +278,10 @@ contract PPGovernorL1 is GovernorAlphaInterface {
 
   function getPriorVotes(address account, uint256 blockNumber) public view returns (uint256) {
     uint256 total = 0;
-    uint256 len = voteSources.length;
+    uint256 len = voteSourceList.length;
 
     for (uint256 i = 0; i < len; i++) {
-      total = add256(total, CvpInterface(voteSources[i]).getPriorVotes(account, blockNumber));
+      total = add256(total, CvpInterface(voteSourceList[i]).getPriorVotes(account, blockNumber));
     }
 
     return total;
