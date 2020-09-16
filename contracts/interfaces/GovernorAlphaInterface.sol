@@ -106,6 +106,8 @@ contract GovernorAlphaInterface {
 
   function getReceipt(uint proposalId, address voter) public view returns (Receipt memory);
 
+  function getVoteSources() external view returns (address[] memory);
+
   function state(uint proposalId) public view returns (ProposalState);
 
   function castVote(uint proposalId, bool support) public;
