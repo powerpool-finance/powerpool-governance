@@ -7,14 +7,33 @@ import "./interfaces/IPPMediatorL1.sol";
 import "./interfaces/IPPMediatorL2.sol";
 import "./PPMediatorCommon.sol";
 
+/**
+ * @title AMB Bridge Mediator Contract for a Side Chain (L2)
+ * @author PowerPool
+ */
 contract PPMediatorL2 is IPPMediatorL2, PPMediatorL2V1Storage, PPMediatorCommon {
   using SafeMath for uint256;
 
+  /// @notice Emitted for each CVP holder balance update
   event UpdateBalance(address indexed account, bytes32 indexed msgId, uint96 balanceBefore, uint96 _balanceAfter);
+
+  /// @notice Emitted once when a corresponding AMB message is received
   event HandleBalanceUpdates(bytes32 indexed msgId, address[] accounts, uint96[] balances);
+
+  /// @notice Emitted when the governorL2 executes a `propose/castVote in L1` proposal
   event SendVotingDecision(bytes32 indexed msgId, bytes4 signature, bytes args);
+
+  /// @notice Emitted when the owner changes governorL2's timelock address
   event SetGovernorL2Timelock(address indexed governorL2Timelock);
 
+  /**
+   * @notice Initializes a proxied version of the contract
+   * @param _owner The initial contract owner address
+   * @param _governorL2Timelock The initial governorL2's timelock contract address
+   * @param _amb The initial Arbitrary Message Bridge address
+   * @param _mediatorContractOnOtherSide The initial mediatorL2 contract address
+   * @param _requestGasLimit The initial request gas limit value
+   */
   function initialize(
     address _owner,
     address _governorL2Timelock,
@@ -31,6 +50,12 @@ contract PPMediatorL2 is IPPMediatorL2, PPMediatorL2V1Storage, PPMediatorCommon 
 
   /*** Voting Decisions L2 -> L1 (outgoing) ***/
 
+  /**
+   * @notice Relays governorL2 decision to AMB
+   * @dev The mediatorL1 will check the signature to allow the `propose()` and `castVote()` methods only
+   * @param _signature The signature of a method to execute
+   * @param _args The ABI-encoded argument list for the corresponding `_signature` argument
+   */
   function callGovernorL1(bytes4 _signature, bytes calldata _args) external {
     require(msg.sender == governorL2Timelock, "PPMediatorL2:callGovernorL1: Only governorL2Timelock allowed");
 
@@ -43,6 +68,11 @@ contract PPMediatorL2 is IPPMediatorL2, PPMediatorL2V1Storage, PPMediatorCommon 
 
   /*** Balance Updates L2 <- L1 (incoming) ***/
 
+  /**
+   * @notice Handles a balance updates from the governorL1 contract
+   * @param _accounts A list of accounts to update
+   * @param _balances A corresponding list of balances to update
+   */
   function handleBalanceUpdates(address[] calldata _accounts, uint96[] calldata _balances) external {
     require(msg.sender == address(amb), "PPMediatorL2::handleBalanceUpdates: Only AMB allowed");
     require(
@@ -145,6 +175,10 @@ contract PPMediatorL2 is IPPMediatorL2, PPMediatorL2V1Storage, PPMediatorCommon 
 
   /*** Owner methods ***/
 
+  /**
+   * @notice Sets a new governorL2's timelock address
+   * @param _governor A new governorL2's timelock address
+   */
   function setGovernorL2Timelock(address _governorL2Timelock) external onlyOwner {
     governorL2Timelock = _governorL2Timelock;
     emit SetGovernorL2Timelock(_governorL2Timelock);

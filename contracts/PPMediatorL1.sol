@@ -8,9 +8,14 @@ import "./interfaces/ICvp.sol";
 import "./interfaces/IPPMediatorL1.sol";
 import "./interfaces/IPPMediatorL2.sol";
 
+/**
+ * @title AMB Bridge Mediator Contract for Ethereum Mainnet (L1)
+ * @author PowerPool
+ */
 contract PPMediatorL1 is IPPMediatorL1, PPMediatorL1V1Storage, PPMediatorCommon {
   using SafeMath for uint256;
 
+  /// @notice Emitted when a CVP holder deposits their tokens to the mediator contract
   event Deposit(
     address indexed account,
     uint256 balanceBefore,
@@ -19,6 +24,7 @@ contract PPMediatorL1 is IPPMediatorL1, PPMediatorL1V1Storage, PPMediatorCommon 
     uint256 totalLockedAfter
   );
 
+  /// @notice Emitted when a CVP holder withdraws their tokens from the mediator contract
   event Withdrawal(
     address indexed account,
     uint256 balanceBefore,
@@ -27,11 +33,27 @@ contract PPMediatorL1 is IPPMediatorL1, PPMediatorL1V1Storage, PPMediatorCommon 
     uint256 totalLockedAfter
   );
 
+  /// @notice Emitted when a balance update message is sent to AMB
   event SendBalanceUpdates(bytes32 indexed msgId, address[] accounts, uint96[] balances);
+
+  /// @notice Emitted when someone calls a permissionless sync balance method
   event SyncBalances(address indexed sender, uint256 accountsLength);
+
+  /// @notice Emitted when AMB sends an incoming message about L2 voting decision
   event HandleVotingDecision(bytes32 indexed msgId, bytes4 signature, bytes args);
+
+  /// @notice Emitted when the owner sets a new governor address
   event SetGovernor(address indexed governor);
 
+  /**
+   * @notice Initializes a proxied version of the contract
+   * @param _owner The initial contract owner address
+   * @param _governor The initial governorL1 contract address
+   * @param _cvpToken The CVP token address
+   * @param _amb The initial Arbitrary Message Bridge address
+   * @param _mediatorContractOnOtherSide The initial mediatorL2 contract address
+   * @param _requestGasLimit The initial request gas limit value
+   */
   function initialize(
     address _owner,
     address _governor,
@@ -48,6 +70,10 @@ contract PPMediatorL1 is IPPMediatorL1, PPMediatorL1V1Storage, PPMediatorCommon 
     PPMediatorCommon.initialize(_owner, _amb, _mediatorContractOnOtherSide, _requestGasLimit);
   }
 
+  /**
+   * @notice Accepts and stores CVP tokens, sends a balance update message to the mediatorL2
+   * @param _amount of CVP to deposit
+   */
   function deposit(uint256 _amount) external {
     require(_amount > 0, "PPMediatorL1:deposit: Amount should be positive");
     safe96(_amount, "PPMediatorL1::deposit: amount exceeds 96 bits");
@@ -72,6 +98,11 @@ contract PPMediatorL1 is IPPMediatorL1, PPMediatorL1V1Storage, PPMediatorCommon 
     _sendBalanceUpdate(msgSender, cvpLockedAfter);
   }
 
+  /**
+   * @notice Transfers CVP tokens back to the holder, sends a balance update message to the mediatorL2
+   * @param _to The address to send the unlocked CVP tokens to
+   * @param _amount The amount of CVP to withdraw
+   */
   function withdraw(address _to, uint256 _amount) external {
     require(_amount > 0, "PPMediatorL1:withdraw: Amount should be positive");
     safe96(_amount, "PPMediatorL1::withdraw: amount exceeds 96 bits");
@@ -98,6 +129,11 @@ contract PPMediatorL1 is IPPMediatorL1, PPMediatorL1V1Storage, PPMediatorCommon 
     _sendBalanceUpdate(msgSender, cvpLockedAfter);
   }
 
+  /**
+   * @notice Sends balance update message for the given accounts to the mediatorL2
+   * @dev Permissioness method, anyone can execute it
+   * @param _accounts The array of the accounts to send a balance update messages for
+   */
   function syncBalances(address[] calldata _accounts) external {
     uint256 len = _accounts.length;
     require(len > 0, "PPMediatorL1:deposit: Empty accounts array");
@@ -141,6 +177,13 @@ contract PPMediatorL1 is IPPMediatorL1, PPMediatorL1V1Storage, PPMediatorCommon 
 
   /*** Voting Decisions L1 <- L2 (incoming) ***/
 
+  /**
+   * @notice Handles a voting decision from the governorL2 contract.
+   * @dev A signature is accepted as a separate parameter in order to make filter check more explicit.
+   * @param _signature The signature of a method to execute. The `propose()` and `castVote()` methods
+   *         of the governorL1 contract are allowed only.
+   * @param _args The ABI-encoded argument list for the corresponding `_signature` argument
+   */
   function handleCallGovernorL1(bytes4 _signature, bytes calldata _args) external {
     require(msg.sender == address(amb), "PPMediatorL1::handleBalanceUpdate: Only AMB allowed");
     require(
@@ -163,11 +206,19 @@ contract PPMediatorL1 is IPPMediatorL1, PPMediatorL1V1Storage, PPMediatorCommon 
 
   /*** Owner methods ***/
 
+  /**
+   * @notice Sets a new governorL1 address
+   * @param _governor A new governorL1 address
+   */
   function setGovernor(address _governor) external onlyOwner {
     governor = _governor;
     emit SetGovernor(_governor);
   }
 
+  /**
+   * @notice Self-delegates votes in the CVP token
+   * @dev To be executed once
+   */
   function setDelegatee() external onlyOwner {
     ICvp(cvpToken).delegate(address(this));
   }
