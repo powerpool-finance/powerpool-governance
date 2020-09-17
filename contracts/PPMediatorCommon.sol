@@ -47,7 +47,7 @@ contract PPMediatorCommon is Ownable, Initializable, PPMediatorCommonStorage {
 
   /**
    * @notice Sets a new mediatorContractOnOtherSide address
-   * @param _governor A new mediatorContractOnOtherSide address
+   * @param _mediatorContractOnOtherSide A new mediatorContractOnOtherSide address
    */
   function setMediatorContractOnOtherSide(address _mediatorContractOnOtherSide) external onlyOwner {
     mediatorContractOnOtherSide = _mediatorContractOnOtherSide;
@@ -56,7 +56,7 @@ contract PPMediatorCommon is Ownable, Initializable, PPMediatorCommonStorage {
 
   /**
    * @notice Sets a new Arbitrary Message Bridge address
-   * @param _governor A new AMB address
+   * @param _amb A new AMB address
    */
   function setAmb(address _amb) external onlyOwner {
     amb = IAMB(_amb);
@@ -65,7 +65,7 @@ contract PPMediatorCommon is Ownable, Initializable, PPMediatorCommonStorage {
 
   /**
    * @notice Sets a new requestGasLimit value
-   * @param _governor A new requestGasLimit value
+   * @param _requestGasLimit A new requestGasLimit value
    */
   function setRequestGasLimit(uint256 _requestGasLimit) external onlyOwner {
     requestGasLimit = _requestGasLimit;

@@ -177,7 +177,7 @@ contract PPMediatorL2 is IPPMediatorL2, PPMediatorL2V1Storage, PPMediatorCommon 
 
   /**
    * @notice Sets a new governorL2's timelock address
-   * @param _governor A new governorL2's timelock address
+   * @param _governorL2Timelock A new governorL2's timelock address
    */
   function setGovernorL2Timelock(address _governorL2Timelock) external onlyOwner {
     governorL2Timelock = _governorL2Timelock;
