@@ -83,13 +83,13 @@ contract GovernorAlphaInterface {
   event VoteCast(address indexed voter, uint indexed proposalId, bool indexed support, uint votes);
 
   /// @notice An event emitted when a proposal has been canceled
-  event ProposalCanceled(uint id);
+  event ProposalCanceled(uint indexed id);
 
   /// @notice An event emitted when a proposal has been queued in the Timelock
-  event ProposalQueued(uint id, uint eta);
+  event ProposalQueued(uint indexed id, uint eta);
 
   /// @notice An event emitted when a proposal has been executed in the Timelock
-  event ProposalExecuted(uint id);
+  event ProposalExecuted(uint indexed id);
 
   /// @notice An event emitted when a change vote sources proposal has been executed
   event SetVoteSources(address[] voteSources);
