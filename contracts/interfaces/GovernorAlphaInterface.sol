@@ -91,9 +91,6 @@ contract GovernorAlphaInterface {
   /// @notice An event emitted when a proposal has been executed in the Timelock
   event ProposalExecuted(uint id);
 
-  /// @notice An event emitted when a change vote sources proposal has been executed
-  event SetVoteSources(address[] voteSources);
-
   function propose(address[] memory targets, uint[] memory values, string[] memory signatures, bytes[] memory calldatas, string memory description) public returns (uint);
 
   function queue(uint proposalId) public;
