@@ -77,19 +77,19 @@ contract GovernorAlphaInterface {
   function BALLOT_TYPEHASH() external view returns (bytes32);
 
   /// @notice An event emitted when a new proposal is created
-  event ProposalCreated(uint id, address proposer, address[] targets, uint[] values, string[] signatures, bytes[] calldatas, uint startBlock, uint endBlock, string description);
+  event ProposalCreated(uint indexed id, address indexed proposer, address[] targets, uint[] values, string[] signatures, bytes[] calldatas, uint startBlock, uint endBlock, string description);
 
   /// @notice An event emitted when a vote has been cast on a proposal
-  event VoteCast(address voter, uint proposalId, bool support, uint votes);
+  event VoteCast(address indexed voter, uint indexed proposalId, bool indexed support, uint votes);
 
   /// @notice An event emitted when a proposal has been canceled
-  event ProposalCanceled(uint id);
+  event ProposalCanceled(uint indexed id);
 
   /// @notice An event emitted when a proposal has been queued in the Timelock
-  event ProposalQueued(uint id, uint eta);
+  event ProposalQueued(uint indexed id, uint eta);
 
   /// @notice An event emitted when a proposal has been executed in the Timelock
-  event ProposalExecuted(uint id);
+  event ProposalExecuted(uint indexed id);
 
   function propose(address[] memory targets, uint[] memory values, string[] memory signatures, bytes[] memory calldatas, string memory description) public returns (uint);
 
