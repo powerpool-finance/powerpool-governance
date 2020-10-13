@@ -7,14 +7,14 @@ const chai = require('chai');
 const MockAMB = artifacts.require('MockAMB');
 const PPMediatorL1 = artifacts.require('PPMediatorL1');
 const PPMediatorL2 = artifacts.require('PPMediatorL2');
-const MockCVP = artifacts.require('MockCVP');
+const CVP = artifacts.require('Cvp');
 const Timelock = artifacts.require('MockTimelock');
 const PPGovernorL1 = artifacts.require('MockPPGovernorL1');
 
 chai.use(solidity);
 const { expect } = chai;
 
-MockCVP.numberFormat = 'String';
+CVP.numberFormat = 'String';
 PPMediatorL1.numberFormat = 'String';
 PPGovernorL1.numberFormat = 'String';
 MockAMB.numberFormat = 'String';
@@ -38,7 +38,7 @@ describe('PPMediatorL1', function () {
   });
 
   beforeEach(async function () {
-    cvp = await MockCVP.new(owner);
+    cvp = await CVP.new(owner);
 
     amb = await MockAMB.new();
     timelockL1 = await Timelock.new(deployer, TWO_DAYS);

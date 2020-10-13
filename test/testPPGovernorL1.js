@@ -4,13 +4,13 @@ const { K } = require('./helpers');
 const { solidity } = require('ethereum-waffle');
 
 const chai = require('chai');
-const MockCVP = artifacts.require('MockCVP');
+const CVP = artifacts.require('Cvp');
 const PPGovernorL1 = artifacts.require('MockPPGovernorL1');
 
 chai.use(solidity);
 const { expect } = chai;
 
-MockCVP.numberFormat = 'String';
+CVP.numberFormat = 'String';
 PPGovernorL1.numberFormat = 'String';
 
 describe('PPGovernorL1', function () {
@@ -44,7 +44,7 @@ describe('PPGovernorL1', function () {
   describe('votes calculation', async function() {
 
     beforeEach(async function() {
-      source1 = await MockCVP.new(owner);
+      source1 = await CVP.new(owner);
       await source1.delegate(alice, { from: alice });
     });
 
@@ -61,10 +61,10 @@ describe('PPGovernorL1', function () {
     })
 
     it('should calculate a member votes from multiple sources', async function() {
-      const source2 = await MockCVP.new(owner);
+      const source2 = await CVP.new(owner);
       await source2.delegate(alice, { from: alice });
 
-      const source3 = await MockCVP.new(owner);
+      const source3 = await CVP.new(owner);
       await source3.delegate(bob, { from: alice });
 
       governorL1 = await PPGovernorL1.new(timelockStub, [source1.address, source2.address, source3.address], constants.ZERO_ADDRESS);
