@@ -16,15 +16,19 @@ pragma experimental ABIEncoderV2;
 
 contract Cvp {
   /// @notice EIP-20 token name for this token
+  // solhint-disable-next-line
   string public constant name = "Concentrated Voting Power";
 
   /// @notice EIP-20 token symbol for this token
+  // solhint-disable-next-line
   string public constant symbol = "CVP";
 
   /// @notice EIP-20 token decimals for this token
+  // solhint-disable-next-line
   uint8 public constant decimals = 18;
 
   /// @notice Total number of tokens in circulation
+  // solhint-disable-next-line
   uint256 public constant totalSupply = 100000000e18;
 
   /// @notice Allowance amounts on behalf of others
@@ -349,6 +353,7 @@ contract Cvp {
 
   function getChainId() internal pure returns (uint256) {
     uint256 chainId;
+    // solhint-disable-next-line
     assembly {
       chainId := chainid()
     }
