@@ -1,9 +1,12 @@
 pragma solidity ^0.5.16;
 
 import "./ContextMixin.sol";
-import "../Cvp.sol";
+import "./ChildCvpBasic.sol";
+import "./NativeMetaTransaction.sol";
 
-contract ChildCvp is Cvp, ContextMixin {
+contract ChildCvp is ChildCvpBasic, NativeMetaTransaction, ContextMixin {
+  string public constant ERC712_VERSION = "1";
+
   /// @notice Total number of tokens in circulation
   uint96 public totalSupply = 0;
   address public depositor;
@@ -13,8 +16,9 @@ contract ChildCvp is Cvp, ContextMixin {
     _;
   }
 
-  constructor(address _depositor) public Cvp(address(0)) {
+  constructor(address _depositor) public ChildCvpBasic(address(0)) {
     depositor = _depositor;
+    _initializeEIP712(name, ERC712_VERSION);
   }
 
   // This is to support Native meta transactions
@@ -57,11 +61,11 @@ contract ChildCvp is Cvp, ContextMixin {
   function _mint(address account, uint96 amount) internal {
     require(account != address(0), "Cvp::_mint: mint to the zero address");
 
-    _moveDelegates(address(0), account, amount);
-
     totalSupply = add96(totalSupply, amount, "Cvp::_mint: mint amount overflows");
     balances[account] = add96(balances[account], amount, "Cvp::_mint: mint amount overflows");
     emit Transfer(address(0), account, amount);
+
+    _moveDelegates(address(0), account, amount);
   }
 
   /**
@@ -78,10 +82,10 @@ contract ChildCvp is Cvp, ContextMixin {
   function _burn(address account, uint96 amount) internal {
     require(account != address(0), "Cvp::_burn: burn from the zero address");
 
-    _moveDelegates(account, address(0), amount);
-
     balances[account] = sub96(balances[account], amount, "Cvp::_burn: burn amount exceeds balance");
     totalSupply = sub96(totalSupply, amount, "Cvp::_burn: burn amount exceeds totalSupply");
     emit Transfer(account, address(0), amount);
+
+    _moveDelegates(account, address(0), amount);
   }
 }
