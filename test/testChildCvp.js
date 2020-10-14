@@ -13,7 +13,7 @@ const { expect } = chai;
 
 ChildCvp.numberFormat = 'String';
 
-describe.only('ChildCvp', function () {
+describe('ChildCvp', function () {
   let cvp;
 
   let alice, bob, depositor;
@@ -36,6 +36,7 @@ describe.only('ChildCvp', function () {
     const depositData = web3.eth.abi.encodeParameter('uint256', depositAmount);
 
     const doubleDepositAmount = ether('300').toString(10);
+    const trippleDepositAmount = ether('450').toString(10);
 
     beforeEach(async function() {
       cvp = await ChildCvp.new(depositor);
@@ -47,14 +48,30 @@ describe.only('ChildCvp', function () {
 
       const blockNumber1 = await web3.eth.getBlockNumber();
 
+      //unauthorized deposit
       await expect(cvp.deposit(alice, depositData, { from: alice })).to.be.revertedWith('Cvp::onlyDepositor');
+
+      //deposit to first user
       await cvp.deposit(alice, depositData, { from: depositor });
 
       expect(await cvp.balanceOf(alice)).to.be.equal(depositAmount);
       expect(await cvp.getCurrentVotes(alice)).to.be.equal('0');
       expect(await cvp.getPriorVotes(alice, blockNumber1)).to.be.equal('0');
 
+      //delegate deposited balance to self
       await cvp.delegate(alice, { from: alice });
+      expect(await cvp.getCurrentVotes(alice)).to.be.equal(depositAmount);
+      expect(await cvp.totalSupply()).to.be.equal(depositAmount);
+
+      //deposit while already delegated to self
+      await cvp.deposit(alice, depositData, { from: depositor });
+      expect(await cvp.getCurrentVotes(alice)).to.be.equal(doubleDepositAmount);
+      expect(await cvp.totalSupply()).to.be.equal(doubleDepositAmount);
+      await cvp.delegate(alice, { from: alice });
+      expect(await cvp.getCurrentVotes(alice)).to.be.equal(doubleDepositAmount);
+
+      // withdraw part of delegated balance
+      await cvp.withdraw(depositAmount, { from: alice });
       expect(await cvp.getCurrentVotes(alice)).to.be.equal(depositAmount);
       expect(await cvp.totalSupply()).to.be.equal(depositAmount);
 
@@ -63,6 +80,7 @@ describe.only('ChildCvp', function () {
       expect(await cvp.getPriorVotes(alice, blockNumber1)).to.be.equal('0');
       expect(await cvp.getPriorVotes(alice, blockNumber2)).to.be.equal(depositAmount);
 
+      //deposit to second user
       await cvp.deposit(bob, depositData, { from: depositor });
       expect(await cvp.balanceOf(bob)).to.be.equal(depositAmount);
       expect(await cvp.totalSupply()).to.be.equal(doubleDepositAmount);
@@ -74,6 +92,7 @@ describe.only('ChildCvp', function () {
       expect(await cvp.getPriorVotes(alice, blockNumber2)).to.be.equal(depositAmount);
       expect(await cvp.getPriorVotes(bob, blockNumber3)).to.be.equal('0');
 
+      //delegate deposited balance to self
       await cvp.delegate(bob, { from: bob });
       expect(await cvp.getCurrentVotes(bob)).to.be.equal(depositAmount);
 
@@ -84,6 +103,7 @@ describe.only('ChildCvp', function () {
       expect(await cvp.getPriorVotes(bob, blockNumber3)).to.be.equal('0');
       expect(await cvp.getPriorVotes(bob, blockNumber4)).to.be.equal(depositAmount);
 
+      //re-delegate deposited balance to another user
       await cvp.delegate(alice, { from: bob });
       expect(await cvp.getCurrentVotes(bob)).to.be.equal('0');
       expect(await cvp.getCurrentVotes(alice)).to.be.equal(doubleDepositAmount);
@@ -100,7 +120,24 @@ describe.only('ChildCvp', function () {
       expect(await cvp.getPriorVotes(alice, blockNumber5)).to.be.equal(doubleDepositAmount);
       expect(await cvp.getPriorVotes(bob, blockNumber5)).to.be.equal('0');
 
+      // deposit while already delegated to another user
+      await cvp.deposit(bob, depositData, { from: depositor });
+      expect(await cvp.getCurrentVotes(alice)).to.be.equal(trippleDepositAmount);
+      expect(await cvp.totalSupply()).to.be.equal(trippleDepositAmount);
+      await cvp.delegate(alice, { from: bob });
+      expect(await cvp.getCurrentVotes(alice)).to.be.equal(trippleDepositAmount);
+
+      // withdraw part of delegated balance and delegate rest balance to another user again
       await expect(cvp.withdraw(depositAmount, { from: bob })).to.be.revertedWith('Cvp::_moveVotes: vote amount underflows');
+      await cvp.delegate(bob, { from: bob });
+      await cvp.withdraw(depositAmount, { from: bob });
+      expect(await cvp.getCurrentVotes(alice)).to.be.equal(depositAmount);
+      expect(await cvp.totalSupply()).to.be.equal(doubleDepositAmount);
+      await cvp.delegate(alice, { from: bob });
+
+      //try to withdraw delegated balance
+      await expect(cvp.withdraw(depositAmount, { from: bob })).to.be.revertedWith('Cvp::_moveVotes: vote amount underflows');
+      //re-delegate to self
       await cvp.delegate(bob, { from: bob });
       expect(await cvp.getCurrentVotes(alice)).to.be.equal(depositAmount);
       expect(await cvp.getCurrentVotes(bob)).to.be.equal(depositAmount);

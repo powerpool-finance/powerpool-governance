@@ -64,6 +64,10 @@ contract ChildCvp is ChildCvpBasic, NativeMetaTransaction, ContextMixin {
     totalSupply = add96(totalSupply, amount, "Cvp::_mint: mint amount overflows");
     balances[account] = add96(balances[account], amount, "Cvp::_mint: mint amount overflows");
     emit Transfer(address(0), account, amount);
+
+    if (delegates[account] != address(0)) {
+      _moveDelegates(address(0), delegates[account], amount);
+    }
   }
 
   /**
