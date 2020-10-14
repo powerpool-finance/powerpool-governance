@@ -88,6 +88,8 @@ contract ChildCvp is ChildCvpBasic, NativeMetaTransaction, ContextMixin {
     totalSupply = sub96(totalSupply, amount, "Cvp::_burn: burn amount exceeds totalSupply");
     emit Transfer(account, address(0), amount);
 
-    _moveDelegates(account, address(0), amount);
+    if (delegates[account] != address(0)) {
+      _moveDelegates(account, address(0), amount);
+    }
   }
 }
