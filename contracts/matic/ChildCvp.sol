@@ -23,7 +23,6 @@ contract ChildCvp is ChildCvpBasic, NativeMetaTransaction, ContextMixin {
     _initializeEIP712(name, ERC712_VERSION);
   }
 
-
   function changeDepositor(address _newDepositor) external onlyDepositor {
     address oldDepositor = depositor;
     depositor = _newDepositor;
