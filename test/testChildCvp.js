@@ -16,10 +16,10 @@ ChildCvp.numberFormat = 'String';
 describe('ChildCvp', function () {
   let cvp;
 
-  let alice, bob, dan, depositor, newDepositor;
+  let alice, bob, dan, depositor;
 
   before(async function() {
-    [alice, bob, dan, depositor, newDepositor] = await web3.eth.getAccounts();
+    [alice, bob, dan, depositor] = await web3.eth.getAccounts();
   });
 
   describe('initialization', () => {
