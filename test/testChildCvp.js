@@ -55,8 +55,18 @@ describe('ChildCvp', function () {
       await cvp.deposit(alice, depositData, { from: depositor });
 
       expect(await cvp.balanceOf(alice)).to.be.equal(depositAmount);
+      expect(await cvp.totalSupply()).to.be.equal(depositAmount);
       expect(await cvp.getCurrentVotes(alice)).to.be.equal('0');
       expect(await cvp.getPriorVotes(alice, blockNumber1)).to.be.equal('0');
+
+      // withdraw and deposit again without delegates
+      await cvp.withdraw(depositAmount, { from: alice });
+      expect(await cvp.balanceOf(alice)).to.be.equal('0');
+      expect(await cvp.getCurrentVotes(alice)).to.be.equal('0');
+      expect(await cvp.totalSupply()).to.be.equal('0');
+      await cvp.deposit(alice, depositData, { from: depositor });
+      expect(await cvp.balanceOf(alice)).to.be.equal(depositAmount);
+      expect(await cvp.totalSupply()).to.be.equal(depositAmount);
 
       //delegate deposited balance to self
       await cvp.delegate(alice, { from: alice });
