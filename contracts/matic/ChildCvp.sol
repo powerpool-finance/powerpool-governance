@@ -89,7 +89,7 @@ contract ChildCvp is ChildCvpBasic, NativeMetaTransaction, ContextMixin {
     emit Transfer(account, address(0), amount);
 
     if (delegates[account] != address(0)) {
-      _moveDelegates(account, address(0), amount);
+      _moveDelegates(delegates[account], address(0), amount);
     }
   }
 }

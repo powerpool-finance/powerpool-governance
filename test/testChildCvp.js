@@ -16,10 +16,10 @@ ChildCvp.numberFormat = 'String';
 describe('ChildCvp', function () {
   let cvp;
 
-  let alice, bob, depositor;
+  let alice, bob, dan, depositor;
 
   before(async function() {
-    [alice, bob, depositor] = await web3.eth.getAccounts();
+    [alice, bob, dan, depositor] = await web3.eth.getAccounts();
   });
 
   describe('initialization', () => {
@@ -31,7 +31,7 @@ describe('ChildCvp', function () {
     });
   })
 
-  describe('votes calculation', async function() {
+  describe('cvp deposit and withdraw', async function() {
     const depositAmount = ether('150').toString(10);
     const depositData = web3.eth.abi.encodeParameter('uint256', depositAmount);
 
@@ -42,7 +42,7 @@ describe('ChildCvp', function () {
       cvp = await ChildCvp.new(depositor);
     });
 
-    it('should calculate a member votes from a single source', async function() {
+    it('should correctly deposit and withdraw delegated or non-delegated balance', async function() {
       expect(await cvp.balanceOf(alice)).to.be.equal('0');
       expect(await cvp.balanceOf(bob)).to.be.equal('0');
 
@@ -138,19 +138,16 @@ describe('ChildCvp', function () {
       expect(await cvp.getCurrentVotes(alice)).to.be.equal(trippleDepositAmount);
 
       // withdraw part of delegated balance and delegate rest balance to another user again
-      await expect(cvp.withdraw(depositAmount, { from: bob })).to.be.revertedWith('Cvp::_moveVotes: vote amount underflows');
-      await cvp.delegate(bob, { from: bob });
       await cvp.withdraw(depositAmount, { from: bob });
-      expect(await cvp.getCurrentVotes(alice)).to.be.equal(depositAmount);
+      expect(await cvp.getCurrentVotes(alice)).to.be.equal(doubleDepositAmount);
       expect(await cvp.totalSupply()).to.be.equal(doubleDepositAmount);
-      await cvp.delegate(alice, { from: bob });
 
-      //try to withdraw delegated balance
-      await expect(cvp.withdraw(depositAmount, { from: bob })).to.be.revertedWith('Cvp::_moveVotes: vote amount underflows');
-      //re-delegate to self
-      await cvp.delegate(bob, { from: bob });
+      //withdraw delegated to self balance
+      await cvp.withdraw(depositAmount, { from: bob });
+      expect(await cvp.balanceOf(bob)).to.be.equal('0');
+      expect(await cvp.getCurrentVotes(bob)).to.be.equal('0');
       expect(await cvp.getCurrentVotes(alice)).to.be.equal(depositAmount);
-      expect(await cvp.getCurrentVotes(bob)).to.be.equal(depositAmount);
+      expect(await cvp.totalSupply()).to.be.equal(depositAmount);
 
       const blockNumber6 = await web3.eth.getBlockNumber();
       await advanceBlocks(1);
@@ -163,13 +160,13 @@ describe('ChildCvp', function () {
       expect(await cvp.getPriorVotes(alice, blockNumber5)).to.be.equal(doubleDepositAmount);
       expect(await cvp.getPriorVotes(bob, blockNumber5)).to.be.equal('0');
       expect(await cvp.getPriorVotes(alice, blockNumber6)).to.be.equal(depositAmount);
-      expect(await cvp.getPriorVotes(bob, blockNumber6)).to.be.equal(depositAmount);
+      expect(await cvp.getPriorVotes(bob, blockNumber6)).to.be.equal('0');
 
-      await cvp.withdraw(depositAmount, { from: bob });
-      expect(await cvp.balanceOf(bob)).to.be.equal('0');
-      expect(await cvp.getCurrentVotes(bob)).to.be.equal('0');
-      expect(await cvp.getCurrentVotes(alice)).to.be.equal(depositAmount);
-      expect(await cvp.totalSupply()).to.be.equal(depositAmount);
+      await cvp.withdraw(depositAmount, { from: alice });
+      expect(await cvp.balanceOf(alice)).to.be.equal('0');
+      expect(await cvp.getCurrentVotes(alice)).to.be.equal('0');
+      expect(await cvp.totalSupply()).to.be.equal('0');
+      await expect(cvp.withdraw(depositAmount, { from: alice })).to.be.revertedWith('Cvp::_burn: burn amount exceeds balance');
 
       const blockNumber7 = await web3.eth.getBlockNumber();
       await advanceBlocks(1);
@@ -182,32 +179,50 @@ describe('ChildCvp', function () {
       expect(await cvp.getPriorVotes(alice, blockNumber5)).to.be.equal(doubleDepositAmount);
       expect(await cvp.getPriorVotes(bob, blockNumber5)).to.be.equal('0');
       expect(await cvp.getPriorVotes(alice, blockNumber6)).to.be.equal(depositAmount);
-      expect(await cvp.getPriorVotes(bob, blockNumber6)).to.be.equal(depositAmount);
-      expect(await cvp.getPriorVotes(alice, blockNumber7)).to.be.equal(depositAmount);
+      expect(await cvp.getPriorVotes(bob, blockNumber6)).to.be.equal('0');
+      expect(await cvp.getPriorVotes(alice, blockNumber7)).to.be.equal('0');
       expect(await cvp.getPriorVotes(bob, blockNumber7)).to.be.equal('0');
+
+      await cvp.deposit(bob, depositData, { from: depositor });
+      expect(await cvp.getCurrentVotes(bob)).to.be.equal('0');
+      expect(await cvp.getCurrentVotes(alice)).to.be.equal(depositAmount);
+      expect(await cvp.totalSupply()).to.be.equal(depositAmount);
+      await cvp.delegate(bob, { from: bob });
+      expect(await cvp.getCurrentVotes(bob)).to.be.equal(depositAmount);
+      expect(await cvp.getCurrentVotes(alice)).to.be.equal('0');
+      expect(await cvp.totalSupply()).to.be.equal(depositAmount);
+
+      await cvp.transfer(alice, depositAmount, { from: bob });
+      expect(await cvp.getCurrentVotes(bob)).to.be.equal('0');
+      expect(await cvp.getCurrentVotes(alice)).to.be.equal(depositAmount);
+      expect(await cvp.totalSupply()).to.be.equal(depositAmount);
 
       await cvp.withdraw(depositAmount, { from: alice });
       expect(await cvp.balanceOf(alice)).to.be.equal('0');
       expect(await cvp.getCurrentVotes(alice)).to.be.equal('0');
       expect(await cvp.totalSupply()).to.be.equal('0');
-      await expect(cvp.withdraw(depositAmount, { from: alice })).to.be.revertedWith('Cvp::_burn: burn amount exceeds balance');
 
-      const blockNumber8 = await web3.eth.getBlockNumber();
-      await advanceBlocks(1);
-      expect(await cvp.getPriorVotes(alice, blockNumber1)).to.be.equal('0');
-      expect(await cvp.getPriorVotes(alice, blockNumber2)).to.be.equal(depositAmount);
-      expect(await cvp.getPriorVotes(alice, blockNumber3)).to.be.equal(depositAmount);
-      expect(await cvp.getPriorVotes(bob, blockNumber3)).to.be.equal('0');
-      expect(await cvp.getPriorVotes(bob, blockNumber4)).to.be.equal(depositAmount);
-      expect(await cvp.getPriorVotes(alice, blockNumber4)).to.be.equal(depositAmount);
-      expect(await cvp.getPriorVotes(alice, blockNumber5)).to.be.equal(doubleDepositAmount);
-      expect(await cvp.getPriorVotes(bob, blockNumber5)).to.be.equal('0');
-      expect(await cvp.getPriorVotes(alice, blockNumber6)).to.be.equal(depositAmount);
-      expect(await cvp.getPriorVotes(bob, blockNumber6)).to.be.equal(depositAmount);
-      expect(await cvp.getPriorVotes(alice, blockNumber7)).to.be.equal(depositAmount);
-      expect(await cvp.getPriorVotes(bob, blockNumber7)).to.be.equal('0');
-      expect(await cvp.getPriorVotes(alice, blockNumber8)).to.be.equal('0');
-      expect(await cvp.getPriorVotes(bob, blockNumber8)).to.be.equal('0');
+      await cvp.deposit(dan, depositData, { from: depositor });
+      expect(await cvp.balanceOf(dan)).to.be.equal(depositAmount);
+      expect(await cvp.getCurrentVotes(dan)).to.be.equal('0');
+      expect(await cvp.getCurrentVotes(alice)).to.be.equal('0');
+      expect(await cvp.getCurrentVotes(bob)).to.be.equal('0');
+      expect(await cvp.totalSupply()).to.be.equal(depositAmount);
+
+      await cvp.transfer(bob, depositAmount, { from: dan });
+      expect(await cvp.balanceOf(dan)).to.be.equal('0');
+      expect(await cvp.balanceOf(bob)).to.be.equal(depositAmount);
+      expect(await cvp.getCurrentVotes(dan)).to.be.equal('0');
+      expect(await cvp.getCurrentVotes(alice)).to.be.equal('0');
+      expect(await cvp.getCurrentVotes(bob)).to.be.equal(depositAmount);
+      expect(await cvp.totalSupply()).to.be.equal(depositAmount);
+
+      await expect(cvp.withdraw(depositAmount, { from: dan })).to.be.revertedWith('Cvp::_burn: burn amount exceeds balance');
+
+      await cvp.withdraw(depositAmount, { from: bob });
+      expect(await cvp.balanceOf(bob)).to.be.equal('0');
+      expect(await cvp.getCurrentVotes(bob)).to.be.equal('0');
+      expect(await cvp.totalSupply()).to.be.equal('0');
     })
   });
 });
