@@ -11,8 +11,6 @@ contract ChildCvp is ChildCvpBasic, NativeMetaTransaction, ContextMixin {
   uint96 public totalSupply = 0;
   address public depositor;
 
-  event ChangeDepositor(address indexed oldDepositor, address indexed newDepositor);
-
   modifier onlyDepositor() {
     require(_msgSender() == depositor, "Cvp::onlyDepositor");
     _;
@@ -21,12 +19,6 @@ contract ChildCvp is ChildCvpBasic, NativeMetaTransaction, ContextMixin {
   constructor(address _depositor) public ChildCvpBasic(address(0)) {
     depositor = _depositor;
     _initializeEIP712(name, ERC712_VERSION);
-  }
-
-  function changeDepositor(address _newDepositor) external onlyDepositor {
-    address oldDepositor = depositor;
-    depositor = _newDepositor;
-    emit ChangeDepositor(oldDepositor, _newDepositor);
   }
 
   // This is to support Native meta transactions
