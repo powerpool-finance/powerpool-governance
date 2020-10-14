@@ -16,10 +16,10 @@ ChildCvp.numberFormat = 'String';
 describe('ChildCvp', function () {
   let cvp;
 
-  let alice, bob, dan, depositor, newDepositor;
+  let alice, bob, dan, depositor;
 
   before(async function() {
-    [alice, bob, dan, depositor, newDepositor] = await web3.eth.getAccounts();
+    [alice, bob, dan, depositor] = await web3.eth.getAccounts();
   });
 
   describe('initialization', () => {
@@ -223,28 +223,6 @@ describe('ChildCvp', function () {
       expect(await cvp.balanceOf(bob)).to.be.equal('0');
       expect(await cvp.getCurrentVotes(bob)).to.be.equal('0');
       expect(await cvp.totalSupply()).to.be.equal('0');
-    })
-  });
-
-
-  describe('changeDepositor', async function() {
-    const depositAmount = ether('1').toString(10);
-    const depositData = web3.eth.abi.encodeParameter('uint256', depositAmount);
-    beforeEach(async function () {
-      cvp = await ChildCvp.new(depositor);
-    });
-
-    it('depositor should be able change his own address to new', async function () {
-      await expect(cvp.deposit(alice, depositData, { from: newDepositor })).to.be.revertedWith('Cvp::onlyDepositor');
-      await expect(cvp.changeDepositor(newDepositor, { from: newDepositor })).to.be.revertedWith('Cvp::onlyDepositor');
-
-      expect(await cvp.depositor()).to.be.equal(depositor);
-      await cvp.changeDepositor(newDepositor, { from: depositor });
-      expect(await cvp.depositor()).to.be.equal(newDepositor);
-
-      expect(await cvp.balanceOf(alice)).to.be.equal('0');
-      await cvp.deposit(alice, depositData, { from: newDepositor });
-      expect(await cvp.balanceOf(alice)).to.be.equal(depositAmount);
     })
   });
 });
