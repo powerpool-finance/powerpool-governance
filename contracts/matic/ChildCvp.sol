@@ -7,8 +7,6 @@ import "./NativeMetaTransaction.sol";
 contract ChildCvp is ChildCvpBasic, NativeMetaTransaction, ContextMixin {
   string public constant ERC712_VERSION = "1";
 
-  /// @notice Total number of tokens in circulation
-  uint96 public totalSupply = 0;
   address public depositor;
 
   modifier onlyDepositor() {
