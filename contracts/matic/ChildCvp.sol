@@ -43,8 +43,8 @@ contract ChildCvp is ChildCvpBasic, NativeMetaTransaction, ContextMixin {
    * @dev Should burn user's tokens. This transaction will be verified when exiting on root chain
    * @param amount amount of tokens to withdraw
    */
-  function withdraw(uint96 amount) external {
-    _burn(_msgSender(), amount);
+  function withdraw(uint256 amount) external {
+    _burn(_msgSender(), safe96(amount, "Cvp::deposit: amount exceeds 96 bits"));
   }
 
   /** @dev Creates `amount` tokens and assigns them to `account`, increasing
