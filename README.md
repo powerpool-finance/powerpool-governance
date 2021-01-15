@@ -10,8 +10,8 @@ More details in 👉 [Specification](https://github.com/powerpool-finance/powerp
 
 ## Contracts on Ethereum Main Network
 ### Active
-- `PPGovernorL1` - [0x88A6cee103d03a3250DB46982109cb7CB7BD8F98](https://etherscan.io/address/0x88A6cee103d03a3250DB46982109cb7CB7BD8F98)
-- `Timelock` - [0x0e05A5f58281ff5AB9Aac81b9220B4dEFA84325E](https://etherscan.io/address/0x0e05A5f58281ff5AB9Aac81b9220B4dEFA84325E)
+- `PPGovernorL1` - [0x1872b9692bD7ceaBbeFd30e40B03C548a9D79261](https://etherscan.io/address/0x1872b9692bD7ceaBbeFd30e40B03C548a9D79261)
+- `Timelock` - [0x34776a0DbB158935422e20C5cE897408Fd334AD8](https://etherscan.io/address/0x34776a0DbB158935422e20C5cE897408Fd334AD8)
 - `CVP Token` - [0x38e4adb44ef08f22f5b5b76a8f0c2d0dcbe7dca1](https://etherscan.io/address/0x38e4adb44ef08f22f5b5b76a8f0c2d0dcbe7dca1)
 - `SimpleVoting` - [0x54ebAf8c34D4Ada5A1D0936Ca11394d858Af13AC](https://etherscan.io/address/0x54ebAf8c34D4Ada5A1D0936Ca11394d858Af13AC)
 
@@ -20,6 +20,8 @@ More details in 👉 [Specification](https://github.com/powerpool-finance/powerp
 - `Timelock` - [0xa40522994c6c85e5717cd12d5f50de50a2a2c4e3](https://etherscan.io/address/0xa40522994c6c85e5717cd12d5f50de50a2a2c4e3)
 - `PPGovernorL1` - [0x8234d0C4d27333e4103C3EBADC48b7dA7Cc72b45](https://etherscan.io/address/0x8234d0C4d27333e4103C3EBADC48b7dA7Cc72b45)
 - `Timelock` - [0x6415cE217a981BBa24E12FC2Cc14fb2c4Ae08a7A](https://etherscan.io/address/0x6415cE217a981BBa24E12FC2Cc14fb2c4Ae08a7A)
+- `PPGovernorL1` - [0x88A6cee103d03a3250DB46982109cb7CB7BD8F98](https://etherscan.io/address/0x88A6cee103d03a3250DB46982109cb7CB7BD8F98)
+- `Timelock` - [0x0e05A5f58281ff5AB9Aac81b9220B4dEFA84325E](https://etherscan.io/address/0x0e05A5f58281ff5AB9Aac81b9220B4dEFA84325E)
 
 ## Contracts on Matic Network
 - `childCVP Token` - [0x530d954549F3Efa00799784BC7FE0C3FED76Da19](https://explorer.matic.network/address/0x530d954549F3Efa00799784BC7FE0C3FED76Da19/contracts)
